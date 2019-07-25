@@ -34,8 +34,6 @@ async function submitReading(req, res) {
       }
     }
 
-    console.log(errs)
-
     if(errs.length > 0) {
       return res.status(400).json(errs);
     }
