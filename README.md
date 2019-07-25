@@ -1,9 +1,7 @@
 # Meter Readings
-
 I have used a sqlite database to back this server. The relational data for the customers, meters, registers, supply points is built on initial run and populated with mock data. An empty readings table is also created.
 
 ## Prepopulated data and schema
-
 Each all data is realted through foreign keys. Data could be further normalised but due to time constraints I have left it at this level.
 
 ### Customers
@@ -73,7 +71,6 @@ Each all data is realted through foreign keys. Data could be further normalised 
 ## Routes
 
 ### Submit reading
-
 `POST /meter-read`;
 
 Example body:
@@ -93,10 +90,24 @@ Example body:
 
 The above meter reading should successfully be added to the database after being validated. Validation is currently limited to checking that the meter belongs to the customer and that the `registerId`s belong to the meter.
 
-If a dupliate reading is submitted it will be rejected, a duplicate is a reading that has the same customerId, meter serial number, MPXN and readDate.
+If a duplicate reading is submitted it will be rejected, a duplicate is a reading that has the same customerId, serialNumber, registerId and readDate as a previous reading.
 
 ### Get customer readings
-
 `GET /meter-read/customer/:customerId/meter/:serialNumber`
 
 Returns an array of readings in the same format that they were submitted.
+
+```
+[
+    {
+        "customerId": "1",
+        "serialNumber": "123458",
+        "mpan": "98765",
+        "read": [
+            {"type": "ANYTIME", "registerId": 11112, "value": "2729"},
+            {"type": "NIGHT", "registerId": 11113, "value": "2892"}
+        ],
+        "readDate": "2019-04-07T10:01:15+00:00Z"
+    }
+]
+```
