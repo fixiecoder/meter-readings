@@ -2,11 +2,11 @@ const database = require('../services/database');
 const { mapReadingsToResponse } = require('../libs/readings');
 
 async function getMeterDetails({ serialNumber, customerId }) {
-  const sql = `SELECT meters.serial_number, registers.registerId, meters.MPXN, customers_meters.customerId
+  const sql = `SELECT meters.serialNumber, registers.registerId, meters.MPXN, customers_meters.customerId
     FROM meters
-    INNER JOIN registers ON meters.serial_number = registers.serial_number
-    INNER JOIN customers_meters ON meters.serial_number = customers_meters.serial_number
-    WHERE meters.serial_number = ${serialNumber}
+    INNER JOIN registers ON meters.serialNumber = registers.serialNumber
+    INNER JOIN customers_meters ON meters.serialNumber = customers_meters.serialNumber
+    WHERE meters.serialNumber = ${serialNumber}
     AND customers_meters.customerId = ${customerId}
   `;
   return database.getAll(sql);
@@ -24,7 +24,7 @@ async function add({ serialNumber, customerId, MPXN, readings, readDate }) {
       reading.value,
       MPXN
     ]);
-console.log(result)
+
     if(result.err) {
       errs.push(result)
     }
@@ -38,20 +38,10 @@ console.log(result)
 }
 
 async function getAll({ serialNumber, customerId }) {
-  // let sql = `SELECT readings.read_date, supply_points.type, readings.serial_number, registers.registerId, meters.MPXN, customers_meters.customerId
-  //   FROM readings
-  //   INNER JOIN meters ON meters.serial_number = readings.serial_number
-  //   INNER JOIN supply_points ON readings.MPXN = supply_points.MPXN
-  //   INNER JOIN registers ON readings.serial_number = registers.serial_number
-  //   INNER JOIN customers_meters ON readings.serial_number = customers_meters.serial_number
-  //   WHERE readings.serial_number = ${serialNumber}
-  //   AND customers_meters.customerId = ${customerId}
-  // `;
-
   const sql = `SELECT readings.*, supply_points.type AS mpxnType  FROM readings
-    INNER JOIN meters ON readings.serial_number = meters.serial_number
+    INNER JOIN meters ON readings.serialNumber = meters.serialNumber
     INNER JOIN supply_points ON readings.MPXN = supply_points.MPXN
-    WHERE readings.serial_number = ${serialNumber}
+    WHERE readings.serialNumber = ${serialNumber}
     AND readings.customerId = ${customerId}
   `;
 

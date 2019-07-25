@@ -25,10 +25,10 @@ function validateRequest(requestData, modelData) {
 function mapReading(reading) {
   return {
     customerId: reading[0].customerId,
-    serialNumber: reading[0].serial_number,
+    serialNumber: reading[0].serialNumber,
     [reading[0].mpxnType]: '98765',
     read: reading.map(r =>({ type: r.type, registerId: r.registerId, value: r.value })),
-    readDate: reading[0].read_date
+    readDate: reading[0].readDate
   };
 }
 
@@ -38,10 +38,10 @@ const sortReadings = (a, b) => new Date(b.readDate) - new Date(a.readDate);
 function mapReadingsToResponse(readings) {
   const readingsObject = {}
   readings.forEach(reading => {
-    if(!readingsObject[reading.read_date]) {
-      readingsObject[reading.read_date] = [];
+    if(!readingsObject[reading.readDate]) {
+      readingsObject[reading.readDate] = [];
     }
-    readingsObject[reading.read_date].push(reading);
+    readingsObject[reading.readDate].push(reading);
   });
 
   return Object.keys(readingsObject)

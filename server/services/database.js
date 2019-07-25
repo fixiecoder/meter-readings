@@ -21,9 +21,9 @@ const TABLES = {
 };
 
 const customers = [
-  [null, 'Colin', 'Adams'],
-  [null, 'Amy', 'Brockett'],
-  [null, 'Layla', 'Adams'],
+  [null, 'Dave', 'Lister'],
+  [null, 'Arnold', 'Rimmer'],
+  [null, 'kristine', 'kochanski'],
 ];
 
 const supplyPoints = [
@@ -82,7 +82,7 @@ async function createCustomersTable() {
   try {
     const tableExists = await checkTableExists(table);
     if(!tableExists) {
-      const result = await db.run(`CREATE TABLE ${table} (id INTEGER PRIMARY KEY AUTOINCREMENT, firstname TEXT NOT NULL, lastname TEXT NOT NULL)`);
+      const result = await db.run(`CREATE TABLE ${table} (customerId INTEGER PRIMARY KEY AUTOINCREMENT, firstname TEXT NOT NULL, lastname TEXT NOT NULL)`);
       console.log(`${table} created successfully`)
       return true;
     }
@@ -116,10 +116,10 @@ async function createMetersTable() {
     const tableExists = await checkTableExists(table);
     if(!tableExists) {
       const result = await db.run(`CREATE TABLE ${table} (
-        serial_number INTEGER NOT NULL,
+        serialNumber INTEGER NOT NULL,
         MPXN INTEGER NOT NULL,
         FOREIGN KEY(MPXN) REFERENCES supply_points(MPXN)
-        PRIMARY KEY (serial_number, MPXN)
+        PRIMARY KEY (serialNumber, MPXN)
       )`);
       console.log(`${table} created successfully`)
       return true;
@@ -136,11 +136,11 @@ async function createCustomersMetersTable() {
     const tableExists = await checkTableExists(table);
     if(!tableExists) {
       const result = await db.run(`CREATE TABLE ${table} (
-        serial_number INTEGER NOT NULL,
+        serialNumber INTEGER NOT NULL,
         customerId INTEGER NOT NULL,
-        FOREIGN KEY(serial_number) REFERENCES meters(serial_number)
-        FOREIGN KEY(customerId) REFERENCES customers(id)
-        PRIMARY KEY (serial_number, customerId)
+        FOREIGN KEY(serialNumber) REFERENCES meters(serialNumber)
+        FOREIGN KEY(customerId) REFERENCES customers(customerId)
+        PRIMARY KEY (serialNumber, customerId)
       )`);
       console.log(`${table} created successfully`)
       return true;
@@ -157,9 +157,9 @@ async function createRegistersTable() {
     const tableExists = await checkTableExists(table);
     if(!tableExists) {
       const result = await db.run(`CREATE TABLE ${table} (
-        serial_number INTEGER NOT NULL,
+        serialNumber INTEGER NOT NULL,
         registerId INTEGER PRIMARY KEY NOT NULL,
-        FOREIGN KEY(serial_number) REFERENCES meters(serial_number)
+        FOREIGN KEY(serialNumber) REFERENCES meters(serialNumber)
       )`);
       console.log(`${table} created successfully`)
       return true;
@@ -176,18 +176,18 @@ async function createReadingsTable() {
     const tableExists = await checkTableExists(table);
     if(!tableExists) {
       const result = await db.run(`CREATE TABLE ${table} (
-        serial_number INTEGER NOT NULL,
-        read_date TEXT NOT NULL,
+        serialNumber INTEGER NOT NULL,
+        readDate TEXT NOT NULL,
         customerId INTEGER NOT NULL,
         registerId INTEGER NOT NULL,
         type TEXT NOT NULL,
         value INTEGER NOT NULL,
         MPXN INTEGER NOT NULL,
         FOREIGN KEY(MPXN) REFERENCES supplyPoints(MPXN)
-        FOREIGN KEY(serial_number) REFERENCES meters(serial_number)
-        FOREIGN KEY(customerId) REFERENCES customers(id)
+        FOREIGN KEY(serialNumber) REFERENCES meters(serialNumber)
+        FOREIGN KEY(customerId) REFERENCES customers(customerId)
         FOREIGN KEY(registerId) REFERENCES registers(registerId)
-        PRIMARY KEY(customerId, serial_number, registerId, read_date)
+        PRIMARY KEY(customerId, serialNumber, registerId, readDate)
       )`);
       console.log(`${table} created successfully`)
       return true;
@@ -195,18 +195,6 @@ async function createReadingsTable() {
   } catch(e) {
     console.error(`CREATE ${table} TABLE ERROR`, e.message);
     return false;
-  }
-}
-
-async function insertRows() {
-  const table = TABLES.customers.name;
-  try {
-    const names = ['Colin', 'Amy', 'Layla', 'Daisy'];
-    for (let name of names) {
-      await db.run(`INSERT INTO ${table} VALUES (?, ?)`, [null, name]);
-    }
-  } catch(e) {
-    console.error(`INSERT INTO ${table} TABLE ERROR`, e.message);
   }
 }
 
@@ -263,11 +251,11 @@ async function getMeterDetails(meterSerialNumber, MPXN) {
   const table1 = TABLES.meters.name;
   const table2 = TABLES.supplyPoints.name;
 
-  const sql = `SELECT ${table1}.MPXN, type, serial_number
+  const sql = `SELECT ${table1}.MPXN, type, serialNumber
     FROM ${table1} 
     INNER JOIN ${table2}
     ON ${table1}.MPXN = ${table2}.MPXN
-    WHERE serial_number = ${meterSerialNumber}
+    WHERE serialNumber = ${meterSerialNumber}
     AND ${table1}.MPXN = ${MPXN}
   `;
 
